@@ -19,14 +19,13 @@ export const meetingssRouter = createTRPCRouter({
         image:ctx.auth.user.image??generatedAvatarUri({seed:ctx.auth.user.name,variant:"initials"})
       }
     ])
-    const expirationTime=Math.floor(Date.now()/1000)+3600;
-    const issuedAt = Math.floor(Date.now()/1000)-60;
+    const now = Math.floor(Date.now() / 1000);
 
-    const token=streamVideo.generateUserToken({
-      user_id:ctx.auth.user.id,
-      exp:expirationTime,
-      validity_in_seconds:issuedAt,
-    })
+const token = streamVideo.generateUserToken({
+  user_id: ctx.auth.user.id,
+  iat: now - 10,           // backdate issued at to avoid time skew
+  exp: now + 60 * 60       // token valid for 1 hour
+});
     return token;
   }),
   remove: protectedProcedure
